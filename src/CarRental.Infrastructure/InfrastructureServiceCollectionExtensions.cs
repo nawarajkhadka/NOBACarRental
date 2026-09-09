@@ -1,13 +1,16 @@
 using System.Text;
 using CarRental.Application.Auth;
 using CarRental.Application.Bookings;
+using CarRental.Application.DTOs;
 using CarRental.Application.Pricing;
 using CarRental.Application.Repositories;
+using CarRental.Application.Validation;
 using CarRental.Domain.Pricing;
 using CarRental.Infrastructure.Auth;
 using CarRental.Infrastructure.Identity;
 using CarRental.Infrastructure.Persistence;
 using CarRental.Infrastructure.Repositories;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -77,6 +80,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         services.AddScoped<IBookingService, BookingService>();
+
+        services.AddScoped<IValidator<RegisterPickupRequest>, RegisterPickupRequestValidator>();
+        services.AddScoped<IValidator<RegisterReturnRequest>, RegisterReturnRequestValidator>();
 
         services.AddScoped<IPriceCalculator, SmallCarPriceCalculator>();
         services.AddScoped<IPriceCalculator, CombiPriceCalculator>();

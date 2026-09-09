@@ -4,7 +4,6 @@ namespace CarRental.Application.DTOs;
 
 public class BookingResponse
 {
-    public int Id { get; set; }
     public string BookingNumber { get; set; } = string.Empty;
     public string CarRegistrationNumber { get; set; } = string.Empty;
     public DateTime PickupDateTime { get; set; }

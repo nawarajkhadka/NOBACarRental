@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using CarRental.Application.Bookings;
 using CarRental.Application.DTOs;
-using CarRental.Application.Exceptions;
-using CarRental.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,46 +21,16 @@ public class BookingsController : ControllerBase
     [HttpPost("pickup")]
     public async Task<ActionResult<BookingResponse>> RegisterPickup([FromBody] RegisterPickupRequest request)
     {
-        try
-        {
-            var agentId = GetCurrentUserId();
-            var response = await _bookingService.RegisterPickupAsync(request, agentId);
-            return Ok(response);
-        }
-        catch (ApplicationValidationException ex)
-        {
-            return Conflict(new { error = ex.Message });
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return NotFound(new { error = ex.Message });
-        }
-        catch (DomainValidationException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var agentId = GetCurrentUserId();
+        var response = await _bookingService.RegisterPickupAsync(request, agentId);
+        return Ok(response);
     }
 
     [HttpPost("return")]
     public async Task<ActionResult<BookingResponse>> RegisterReturn([FromBody] RegisterReturnRequest request)
     {
-        try
-        {
-            var response = await _bookingService.RegisterReturnAsync(request);
-            return Ok(response);
-        }
-        catch (ApplicationValidationException ex)
-        {
-            return Conflict(new { error = ex.Message });
-        }
-        catch (EntityNotFoundException ex)
-        {
-            return NotFound(new { error = ex.Message });
-        }
-        catch (DomainValidationException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var response = await _bookingService.RegisterReturnAsync(request);
+        return Ok(response);
     }
 
     private int? GetCurrentUserId()

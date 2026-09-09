@@ -37,19 +37,13 @@ public class BookingService : IBookingService
             throw new ApplicationValidationException($"Booking number '{request.BookingNumber}' is already in use.");
         }
 
-        var category = await _carCategoryRepository.GetByNameAsync(request.CarCategoryName)
-            ?? throw new EntityNotFoundException($"Car category '{request.CarCategoryName}' was not found.");
-
-        var car = await _carRepository.GetByRegistrationNumberAsync(request.RegistrationNumber);
-        if (car is null)
+        if (await _carCategoryRepository.GetByNameAsync(request.CarCategoryName) is null)
         {
-            car = new Car
-            {
-                RegistrationNumber = request.RegistrationNumber,
-                CarCategoryId = category.Id
-            };
-            await _carRepository.AddAsync(car);
+            throw new EntityNotFoundException($"Car category '{request.CarCategoryName}' was not found.");
         }
+
+        var car = await _carRepository.GetByRegistrationNumberAsync(request.RegistrationNumber)
+            ?? throw new EntityNotFoundException($"Car with registration number '{request.RegistrationNumber}' is not registered.");
 
         var customer = await _customerRepository.GetBySocialSecurityNumberAsync(request.CustomerSocialSecurityNumber);
         if (customer is null)
@@ -119,7 +113,6 @@ public class BookingService : IBookingService
 
     private static BookingResponse ToResponse(Booking booking) => new()
     {
-        Id = booking.Id,
         BookingNumber = booking.BookingNumber,
         CarRegistrationNumber = booking.Car.RegistrationNumber,
         PickupDateTime = booking.PickupDateTime,
