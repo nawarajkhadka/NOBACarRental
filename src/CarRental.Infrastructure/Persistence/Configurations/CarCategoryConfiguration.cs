@@ -17,5 +17,11 @@ public class CarCategoryConfiguration : IEntityTypeConfiguration<CarCategory>
         builder.Property(c => c.BaseKmPrice).HasColumnType("decimal(10,2)");
 
         builder.HasIndex(c => c.Name).IsUnique();
+
+        // Names must match IPriceCalculator.CategoryName; rates are placeholder dev values.
+        builder.HasData(
+            new CarCategory { Id = 1, Name = "Small", BaseDayRental = 500m, BaseKmPrice = 0m },
+            new CarCategory { Id = 2, Name = "Combi", BaseDayRental = 700m, BaseKmPrice = 3m },
+            new CarCategory { Id = 3, Name = "Truck", BaseDayRental = 1200m, BaseKmPrice = 5m });
     }
 }

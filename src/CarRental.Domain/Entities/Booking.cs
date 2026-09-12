@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using CarRental.Domain.Common;
 using CarRental.Domain.Enums;
 using CarRental.Domain.Exceptions;
 
 namespace CarRental.Domain.Entities;
 
-public class Booking : IValidatableObject
+public class Booking : IValidatableObject, IAuditable
 {
     public int Id { get; set; }
 
@@ -17,9 +18,6 @@ public class Booking : IValidatableObject
 
     public int CustomerId { get; set; }
     public Customer Customer { get; set; } = null!;
-
-    // Staff member who registered the pickup/return; nullable per spec.
-    public int? AgentId { get; set; }
 
     public DateTime PickupDateTime { get; set; }
 
@@ -34,6 +32,11 @@ public class Booking : IValidatableObject
     public decimal? CalculatedPrice { get; set; }
 
     public BookingStatus Status { get; set; }
+
+    public DateTime CreatedDate { get; set; }
+    public int? CreatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public int? UpdatedBy { get; set; }
 
     // Whole days between pickup and return, rounded UP (25 hours counts as 2 days).
     public int GetNumberOfDays()

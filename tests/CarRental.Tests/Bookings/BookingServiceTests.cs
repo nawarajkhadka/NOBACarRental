@@ -58,7 +58,7 @@ public class BookingServiceTests
 
         var request = new RegisterReturnRequest { BookingNumber = "B1", ReturnDateTime = DateTime.UtcNow, ReturnMeterReadingKm = 200 };
 
-        var act = () => _sut.RegisterReturnAsync(request);
+        var act = () => _sut.RegisterReturnAsync(request, agentId: 1);
 
         await act.Should().ThrowAsync<ApplicationValidationException>();
     }
@@ -77,7 +77,7 @@ public class BookingServiceTests
 
         var request = new RegisterReturnRequest { BookingNumber = "B1", ReturnDateTime = DateTime.UtcNow, ReturnMeterReadingKm = 100 };
 
-        var act = () => _sut.RegisterReturnAsync(request);
+        var act = () => _sut.RegisterReturnAsync(request, agentId: 1);
 
         await act.Should().ThrowAsync<DomainValidationException>();
     }
@@ -109,7 +109,7 @@ public class BookingServiceTests
             ReturnMeterReadingKm = 1100
         };
 
-        var response = await _sut.RegisterReturnAsync(request);
+        var response = await _sut.RegisterReturnAsync(request, agentId: 1);
 
         response.CalculatedPrice.Should().Be(600m);
         response.Status.Should().Be(BookingStatus.Returned);

@@ -29,7 +29,8 @@ public class BookingsController : ControllerBase
     [HttpPost("return")]
     public async Task<ActionResult<BookingResponse>> RegisterReturn([FromBody] RegisterReturnRequest request)
     {
-        var response = await _bookingService.RegisterReturnAsync(request);
+        var agentId = GetCurrentUserId();
+        var response = await _bookingService.RegisterReturnAsync(request, agentId);
         return Ok(response);
     }
 

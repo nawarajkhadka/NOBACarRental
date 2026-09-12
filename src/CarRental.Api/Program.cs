@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 using CarRental.Api.Errors;
 using CarRental.Api.Validation;
 using CarRental.Infrastructure;
+using CarRental.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,16 +36,24 @@ builder.Services.AddSwaggerGen(options =>
         In = Microsoft.OpenApi.ParameterLocation.Header,
         Description = "Enter a valid JWT token."
     });
-    options.AddSecurityRequirement(_ => new Microsoft.OpenApi.OpenApiSecurityRequirement
+    options.AddSecurityRequirement(document => new Microsoft.OpenApi.OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer"),
+            new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document),
             new List<string>()
         }
     });
 });
 
 var app = builder.Build();
+
+// Auto-apply migrations; skip for the in-memory test provider (unsupported).
+if (!useInMemoryDatabase)
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -63,7 +63,7 @@ public class BookingService : IBookingService
             BookingNumber = request.BookingNumber,
             Car = car,
             Customer = customer,
-            AgentId = agentId,
+            CreatedBy = agentId,
             PickupDateTime = request.PickupDateTime,
             PickupMeterReadingKm = request.PickupMeterReadingKm,
             Status = BookingStatus.PickedUp
@@ -75,7 +75,7 @@ public class BookingService : IBookingService
         return ToResponse(booking);
     }
 
-    public async Task<BookingResponse> RegisterReturnAsync(RegisterReturnRequest request)
+    public async Task<BookingResponse> RegisterReturnAsync(RegisterReturnRequest request, int? agentId)
     {
         var booking = await _bookingRepository.GetByBookingNumberAsync(request.BookingNumber)
             ?? throw new EntityNotFoundException($"Booking '{request.BookingNumber}' was not found.");
@@ -105,6 +105,7 @@ public class BookingService : IBookingService
         var calculator = _priceCalculatorFactory.GetCalculator(category.Name);
         booking.CalculatedPrice = calculator.Calculate(category.BaseDayRental, category.BaseKmPrice, numberOfDays, numberOfKm);
         booking.Status = BookingStatus.Returned;
+        booking.UpdatedBy = agentId;
 
         await _bookingRepository.SaveChangesAsync();
 

@@ -18,11 +18,13 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(b => b.PickupMeterReadingKm).IsRequired();
         builder.Property(b => b.CalculatedPrice).HasColumnType("decimal(10,2)");
         builder.Property(b => b.Status).HasConversion<byte>();
+        builder.Property(b => b.CreatedDate).IsRequired();
 
         builder.HasIndex(b => b.BookingNumber).IsUnique();
         builder.HasIndex(b => b.CarId);
         builder.HasIndex(b => b.CustomerId);
-        builder.HasIndex(b => b.AgentId);
+        builder.HasIndex(b => b.CreatedBy);
+        builder.HasIndex(b => b.UpdatedBy);
 
         builder.HasOne(b => b.Car)
             .WithMany()
@@ -36,7 +38,12 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
 
         builder.HasOne<ApplicationUser>()
             .WithMany()
-            .HasForeignKey(b => b.AgentId)
+            .HasForeignKey(b => b.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(b => b.UpdatedBy)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -30,7 +30,14 @@ Dependency direction: `Api -> Infrastructure -> Application -> Domain`.
   `PriceCalculatorFactory` (Application) resolves by `CarCategory.Name` — add new category =
   new calculator class + DI registration only.
 - Unique indexes: Customer.SSN, CarCategory.Name, Car.RegistrationNumber, Booking.BookingNumber.
-  Non-clustered index on every FK (Car.CarCategoryId, Booking.CarId/CustomerId/AgentId).
+  Non-clustered index on every FK (Car.CarCategoryId, Booking.CarId/CustomerId/CreatedBy/UpdatedBy).
+- Booking implements `IAuditable` (`CarRental.Domain.Common`): `CreatedDate`/`UpdatedDate` are
+  auto-stamped by `AppDbContext.StampAuditFields()` on save; `CreatedBy`/`UpdatedBy` (nullable FK
+  to AspNetUsers) are set explicitly by `BookingService` from the acting agent id — `CreatedBy`
+  at pickup, `UpdatedBy` at return. There used to be a separate `AgentId` for "which agent
+  handled this," but it was always set to the same value as `CreatedBy` and never read
+  independently, so it was removed in favor of the audit columns. Only Booking has audit
+  columns — Customer/CarCategory/Car have no update path, so they'd go unused.
 
 ## Auth
 - Roles: `Agent`, `Manager` (seeded by `RoleSeeder`). `BookingsController` requires
@@ -45,8 +52,19 @@ Dependency direction: `Api -> Infrastructure -> Application -> Domain`.
   `OpenApiSecurityScheme.Reference`; `AddSecurityRequirement` takes
   `Func<OpenApiDocument, OpenApiSecurityRequirement>`.
 
+## Database / migrations
+- EF Core migrations live in `src/CarRental.Infrastructure/Persistence/Migrations`. `Program.cs`
+  calls `dbContext.Database.Migrate()` on startup (skipped when `useInMemoryDatabase` is true),
+  so the schema is created/updated automatically against the `sql` container — no manual
+  `dotnet ef database update` needed to run the app.
+- `CarCategoryConfiguration`/`CarConfiguration` seed 3 categories (`Small`/`Combi`/`Truck`,
+  matching `IPriceCalculator.CategoryName`) and one demo car per category via `HasData`, since
+  there's no API to create categories/cars.
+- After changing an entity or `IEntityTypeConfiguration`, add a new migration:
+  `dotnet ef migrations add <Name> --project src/CarRental.Infrastructure --startup-project src/CarRental.Api --output-dir Persistence/Migrations`.
+
 ## Commands
 - Build: `dotnet build` (from repo root). Test: `dotnet test`.
 - Docker: `docker compose up --build` (requires `.env` from `.env.example`: `SQL_SA_PASSWORD`,
-  `JWT_SIGNING_KEY`).
+  `JWT_SIGNING_KEY`). First run creates the DB schema and seed data automatically.
 

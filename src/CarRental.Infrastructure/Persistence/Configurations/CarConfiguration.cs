@@ -21,5 +21,11 @@ public class CarConfiguration : IEntityTypeConfiguration<Car>
             .WithMany(cc => cc.Cars)
             .HasForeignKey(c => c.CarCategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Demo car per category — no API exists to create these otherwise.
+        builder.HasData(
+            new Car { Id = 1, RegistrationNumber = "ABC123", CarCategoryId = 1 },
+            new Car { Id = 2, RegistrationNumber = "DEF456", CarCategoryId = 2 },
+            new Car { Id = 3, RegistrationNumber = "GHI789", CarCategoryId = 3 });
     }
 }

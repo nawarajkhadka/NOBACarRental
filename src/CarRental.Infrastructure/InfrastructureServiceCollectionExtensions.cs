@@ -36,7 +36,9 @@ public static class InfrastructureServiceCollectionExtensions
             }
             else
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions => sqlOptions.EnableRetryOnFailure());
             }
         });
 
@@ -90,6 +92,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IPriceCalculatorFactory, PriceCalculatorFactory>();
 
         services.AddHostedService<RoleSeeder>();
+        services.AddHostedService<DemoUserSeeder>();
 
         return services;
     }

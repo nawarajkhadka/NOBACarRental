@@ -5,5 +5,5 @@ namespace CarRental.Application.Bookings;
 public interface IBookingService
 {
     Task<BookingResponse> RegisterPickupAsync(RegisterPickupRequest request, int? agentId);
-    Task<BookingResponse> RegisterReturnAsync(RegisterReturnRequest request);
+    Task<BookingResponse> RegisterReturnAsync(RegisterReturnRequest request, int? agentId);
 }

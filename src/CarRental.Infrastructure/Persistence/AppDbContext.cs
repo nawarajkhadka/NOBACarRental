@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using CarRental.Domain.Common;
 using CarRental.Domain.Entities;
 using CarRental.Domain.Exceptions;
 using CarRental.Infrastructure.Identity;
@@ -26,14 +27,34 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
+        StampAuditFields();
         ValidatePendingEntities();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
     public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
+        StampAuditFields();
         ValidatePendingEntities();
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    // Sets CreatedDate/UpdatedDate on any IAuditable entity being added/modified.
+    // CreatedBy/UpdatedBy are set by the caller, since the acting user isn't known here.
+    private void StampAuditFields()
+    {
+        var utcNow = DateTime.UtcNow;
+        foreach (var entry in ChangeTracker.Entries<IAuditable>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedDate = utcNow;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedDate = utcNow;
+            }
+        }
     }
 
     // Runs each pending entity's [Required]/[StringLength]/[Range]/IValidatableObject rules
