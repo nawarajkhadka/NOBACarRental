@@ -35,11 +35,11 @@ public class BookingServiceTests
     [Fact]
     public async Task RegisterPickupAsync_ThrowsWhenBookingNumberAlreadyInUse()
     {
-        _bookingRepository.Setup(r => r.ExistsByBookingNumberAsync("B1")).ReturnsAsync(true);
+        _bookingRepository.Setup(r => r.ExistsByBookingNumberAsync("B1", It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var request = new RegisterPickupRequest { BookingNumber = "B1" };
 
-        var act = () => _sut.RegisterPickupAsync(request, agentId: 1);
+        var act = () => _sut.RegisterPickupAsync(request, agentId: 1, CancellationToken.None);
 
         await act.Should().ThrowAsync<ApplicationValidationException>();
     }
@@ -54,11 +54,11 @@ public class BookingServiceTests
             PickupDateTime = DateTime.UtcNow.AddDays(-1),
             PickupMeterReadingKm = 100
         };
-        _bookingRepository.Setup(r => r.GetByBookingNumberAsync("B1")).ReturnsAsync(booking);
+        _bookingRepository.Setup(r => r.GetByBookingNumberAsync("B1", It.IsAny<CancellationToken>())).ReturnsAsync(booking);
 
         var request = new RegisterReturnRequest { BookingNumber = "B1", ReturnDateTime = DateTime.UtcNow, ReturnMeterReadingKm = 200 };
 
-        var act = () => _sut.RegisterReturnAsync(request, agentId: 1);
+        var act = () => _sut.RegisterReturnAsync(request, agentId: 1, CancellationToken.None);
 
         await act.Should().ThrowAsync<ApplicationValidationException>();
     }
@@ -73,11 +73,11 @@ public class BookingServiceTests
             PickupDateTime = DateTime.UtcNow.AddDays(-1),
             PickupMeterReadingKm = 500
         };
-        _bookingRepository.Setup(r => r.GetByBookingNumberAsync("B1")).ReturnsAsync(booking);
+        _bookingRepository.Setup(r => r.GetByBookingNumberAsync("B1", It.IsAny<CancellationToken>())).ReturnsAsync(booking);
 
         var request = new RegisterReturnRequest { BookingNumber = "B1", ReturnDateTime = DateTime.UtcNow, ReturnMeterReadingKm = 100 };
 
-        var act = () => _sut.RegisterReturnAsync(request, agentId: 1);
+        var act = () => _sut.RegisterReturnAsync(request, agentId: 1, CancellationToken.None);
 
         await act.Should().ThrowAsync<DomainValidationException>();
     }
@@ -96,7 +96,7 @@ public class BookingServiceTests
             PickupDateTime = new DateTime(2026, 1, 1),
             PickupMeterReadingKm = 1000
         };
-        _bookingRepository.Setup(r => r.GetByBookingNumberAsync("B1")).ReturnsAsync(booking);
+        _bookingRepository.Setup(r => r.GetByBookingNumberAsync("B1", It.IsAny<CancellationToken>())).ReturnsAsync(booking);
 
         var calculator = new Mock<IPriceCalculator>();
         calculator.Setup(c => c.Calculate(300m, 2m, 2, 100)).Returns(600m);
@@ -109,7 +109,7 @@ public class BookingServiceTests
             ReturnMeterReadingKm = 1100
         };
 
-        var response = await _sut.RegisterReturnAsync(request, agentId: 1);
+        var response = await _sut.RegisterReturnAsync(request, agentId: 1, CancellationToken.None);
 
         response.CalculatedPrice.Should().Be(600m);
         response.Status.Should().Be(BookingStatus.Returned);

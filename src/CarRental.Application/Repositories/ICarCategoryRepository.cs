@@ -4,5 +4,5 @@ namespace CarRental.Application.Repositories;
 
 public interface ICarCategoryRepository
 {
-    Task<CarCategory?> GetByNameAsync(string name);
+    Task<CarCategory?> GetByNameAsync(string name, CancellationToken cancellationToken);
 }

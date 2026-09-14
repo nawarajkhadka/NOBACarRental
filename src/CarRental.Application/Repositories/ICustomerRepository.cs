@@ -4,6 +4,6 @@ namespace CarRental.Application.Repositories;
 
 public interface ICustomerRepository
 {
-    Task<Customer?> GetBySocialSecurityNumberAsync(string socialSecurityNumber);
-    Task AddAsync(Customer customer);
+    Task<Customer?> GetBySocialSecurityNumberAsync(string socialSecurityNumber, CancellationToken cancellationToken);
+    Task AddAsync(Customer customer, CancellationToken cancellationToken);
 }

@@ -14,18 +14,18 @@ public class BookingRepository : IBookingRepository
         _dbContext = dbContext;
     }
 
-    public Task<Booking?> GetByBookingNumberAsync(string bookingNumber)
+    public Task<Booking?> GetByBookingNumberAsync(string bookingNumber, CancellationToken cancellationToken)
         => _dbContext.Bookings
             .Include(b => b.Car).ThenInclude(c => c.CarCategory)
             .Include(b => b.Customer)
-            .FirstOrDefaultAsync(b => b.BookingNumber == bookingNumber);
+            .FirstOrDefaultAsync(b => b.BookingNumber == bookingNumber, cancellationToken);
 
-    public Task<bool> ExistsByBookingNumberAsync(string bookingNumber)
-        => _dbContext.Bookings.AnyAsync(b => b.BookingNumber == bookingNumber);
+    public Task<bool> ExistsByBookingNumberAsync(string bookingNumber, CancellationToken cancellationToken)
+        => _dbContext.Bookings.AnyAsync(b => b.BookingNumber == bookingNumber, cancellationToken);
 
-    public async Task AddAsync(Booking booking)
-        => await _dbContext.Bookings.AddAsync(booking);
+    public async Task AddAsync(Booking booking, CancellationToken cancellationToken)
+        => await _dbContext.Bookings.AddAsync(booking, cancellationToken);
 
-    public Task SaveChangesAsync()
-        => _dbContext.SaveChangesAsync();
+    public Task SaveChangesAsync(CancellationToken cancellationToken)
+        => _dbContext.SaveChangesAsync(cancellationToken);
 }

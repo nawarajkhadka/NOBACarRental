@@ -30,22 +30,22 @@ public class BookingService : IBookingService
         _priceCalculatorFactory = priceCalculatorFactory;
     }
 
-    public async Task<BookingResponse> RegisterPickupAsync(RegisterPickupRequest request, int? agentId)
+    public async Task<BookingResponse> RegisterPickupAsync(RegisterPickupRequest request, int? agentId, CancellationToken cancellationToken)
     {
-        if (await _bookingRepository.ExistsByBookingNumberAsync(request.BookingNumber))
+        if (await _bookingRepository.ExistsByBookingNumberAsync(request.BookingNumber, cancellationToken))
         {
             throw new ApplicationValidationException($"Booking number '{request.BookingNumber}' is already in use.");
         }
 
-        if (await _carCategoryRepository.GetByNameAsync(request.CarCategoryName) is null)
+        if (await _carCategoryRepository.GetByNameAsync(request.CarCategoryName, cancellationToken) is null)
         {
             throw new EntityNotFoundException($"Car category '{request.CarCategoryName}' was not found.");
         }
 
-        var car = await _carRepository.GetByRegistrationNumberAsync(request.RegistrationNumber)
+        var car = await _carRepository.GetByRegistrationNumberAsync(request.RegistrationNumber, cancellationToken)
             ?? throw new EntityNotFoundException($"Car with registration number '{request.RegistrationNumber}' is not registered.");
 
-        var customer = await _customerRepository.GetBySocialSecurityNumberAsync(request.CustomerSocialSecurityNumber);
+        var customer = await _customerRepository.GetBySocialSecurityNumberAsync(request.CustomerSocialSecurityNumber, cancellationToken);
         if (customer is null)
         {
             customer = new Customer
@@ -55,7 +55,7 @@ public class BookingService : IBookingService
                 LastName = request.CustomerLastName,
                 CreatedAt = DateTime.UtcNow
             };
-            await _customerRepository.AddAsync(customer);
+            await _customerRepository.AddAsync(customer, cancellationToken);
         }
 
         var booking = new Booking
@@ -69,15 +69,15 @@ public class BookingService : IBookingService
             Status = BookingStatus.PickedUp
         };
 
-        await _bookingRepository.AddAsync(booking);
-        await _bookingRepository.SaveChangesAsync();
+        await _bookingRepository.AddAsync(booking, cancellationToken);
+        await _bookingRepository.SaveChangesAsync(cancellationToken);
 
         return ToResponse(booking);
     }
 
-    public async Task<BookingResponse> RegisterReturnAsync(RegisterReturnRequest request, int? agentId)
+    public async Task<BookingResponse> RegisterReturnAsync(RegisterReturnRequest request, int? agentId, CancellationToken cancellationToken)
     {
-        var booking = await _bookingRepository.GetByBookingNumberAsync(request.BookingNumber)
+        var booking = await _bookingRepository.GetByBookingNumberAsync(request.BookingNumber, cancellationToken)
             ?? throw new EntityNotFoundException($"Booking '{request.BookingNumber}' was not found.");
 
         if (booking.Status != BookingStatus.PickedUp)
@@ -107,7 +107,7 @@ public class BookingService : IBookingService
         booking.Status = BookingStatus.Returned;
         booking.UpdatedBy = agentId;
 
-        await _bookingRepository.SaveChangesAsync();
+        await _bookingRepository.SaveChangesAsync(cancellationToken);
 
         return ToResponse(booking);
     }

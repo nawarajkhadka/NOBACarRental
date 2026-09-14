@@ -14,9 +14,9 @@ public class CarRepository : ICarRepository
         _dbContext = dbContext;
     }
 
-    public Task<Car?> GetByRegistrationNumberAsync(string registrationNumber)
-        => _dbContext.Cars.FirstOrDefaultAsync(c => c.RegistrationNumber == registrationNumber);
+    public Task<Car?> GetByRegistrationNumberAsync(string registrationNumber, CancellationToken cancellationToken)
+        => _dbContext.Cars.FirstOrDefaultAsync(c => c.RegistrationNumber == registrationNumber, cancellationToken);
 
-    public async Task AddAsync(Car car)
-        => await _dbContext.Cars.AddAsync(car);
+    public async Task AddAsync(Car car, CancellationToken cancellationToken)
+        => await _dbContext.Cars.AddAsync(car, cancellationToken);
 }

@@ -14,6 +14,6 @@ public class CarCategoryRepository : ICarCategoryRepository
         _dbContext = dbContext;
     }
 
-    public Task<CarCategory?> GetByNameAsync(string name)
-        => _dbContext.CarCategories.FirstOrDefaultAsync(c => c.Name == name);
+    public Task<CarCategory?> GetByNameAsync(string name, CancellationToken cancellationToken)
+        => _dbContext.CarCategories.FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
 }

@@ -14,9 +14,9 @@ public class CustomerRepository : ICustomerRepository
         _dbContext = dbContext;
     }
 
-    public Task<Customer?> GetBySocialSecurityNumberAsync(string socialSecurityNumber)
-        => _dbContext.Customers.FirstOrDefaultAsync(c => c.SocialSecurityNumber == socialSecurityNumber);
+    public Task<Customer?> GetBySocialSecurityNumberAsync(string socialSecurityNumber, CancellationToken cancellationToken)
+        => _dbContext.Customers.FirstOrDefaultAsync(c => c.SocialSecurityNumber == socialSecurityNumber, cancellationToken);
 
-    public async Task AddAsync(Customer customer)
-        => await _dbContext.Customers.AddAsync(customer);
+    public async Task AddAsync(Customer customer, CancellationToken cancellationToken)
+        => await _dbContext.Customers.AddAsync(customer, cancellationToken);
 }

@@ -19,18 +19,18 @@ public class BookingsController : ControllerBase
     }
 
     [HttpPost("pickup")]
-    public async Task<ActionResult<BookingResponse>> RegisterPickup([FromBody] RegisterPickupRequest request)
+    public async Task<ActionResult<BookingResponse>> RegisterPickup([FromBody] RegisterPickupRequest request, CancellationToken cancellationToken)
     {
         var agentId = GetCurrentUserId();
-        var response = await _bookingService.RegisterPickupAsync(request, agentId);
+        var response = await _bookingService.RegisterPickupAsync(request, agentId, cancellationToken);
         return Ok(response);
     }
 
     [HttpPost("return")]
-    public async Task<ActionResult<BookingResponse>> RegisterReturn([FromBody] RegisterReturnRequest request)
+    public async Task<ActionResult<BookingResponse>> RegisterReturn([FromBody] RegisterReturnRequest request, CancellationToken cancellationToken)
     {
         var agentId = GetCurrentUserId();
-        var response = await _bookingService.RegisterReturnAsync(request, agentId);
+        var response = await _bookingService.RegisterReturnAsync(request, agentId, cancellationToken);
         return Ok(response);
     }
 

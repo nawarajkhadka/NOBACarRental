@@ -14,6 +14,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -76,9 +77,15 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddScoped<ITokenService, TokenService>();
 
+        services.AddMemoryCache();
+
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<ICarRepository, CarRepository>();
-        services.AddScoped<ICarCategoryRepository, CarCategoryRepository>();
+        services.AddScoped<CarCategoryRepository>();
+        services.AddScoped<ICarCategoryRepository>(sp =>
+            new CachedCarCategoryRepository(
+                sp.GetRequiredService<CarCategoryRepository>(),
+                sp.GetRequiredService<IMemoryCache>()));
         services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         services.AddScoped<IBookingService, BookingService>();
