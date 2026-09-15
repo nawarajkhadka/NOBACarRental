@@ -7,7 +7,17 @@ Stack: .NET 10, EF Core, SQL Server, ASP.NET Core Identity + JWT.
 
 ## Running with Docker
 
-1. Copy `.env.example` to `.env` and fill in `SQL_SA_PASSWORD` and `JWT_SIGNING_KEY`.
+1. Create a `.env` file in the repo root with:
+
+   ```
+   SQL_SA_PASSWORD='STRONGpw1!'
+   JWT_SIGNING_KEY=CHANGE_ME_TO_A_LONG_RANDOM_SECRET_AT_LEAST_32_BYTES
+   ```
+
+   (`SQL_SA_PASSWORD` must satisfy SQL Server's complexity policy — at least
+   8 characters, with characters from at least 3 of: uppercase, lowercase,
+   digits, symbols.)
+
 2. Run:
 
    ```
@@ -18,21 +28,14 @@ The database schema and seed data are created automatically on first start —
 nothing else to run. API is at `http://localhost:8080`, Swagger at
 `http://localhost:8080/swagger`.
 
-## Running locally (no Docker)
+To stop and remove the containers:
 
-You need a SQL Server instance reachable from your machine.
+```
+docker compose down
+```
 
-1. Update `ConnectionStrings:DefaultConnection` in `src/CarRental.Api/appsettings.json`
-   to point at your instance.
-2. Run:
-
-   ```
-   dotnet run --project src/CarRental.Api
-   ```
-
-Same as with Docker, migrations and seed data apply automatically on startup.
-Swagger: `https://localhost:7186/swagger` (or the HTTP port if you'd rather skip
-trusting the dev cert — `dotnet dev-certs https --trust`).
+Add `-v` to also delete the SQL Server data volume (e.g. if you change
+`SQL_SA_PASSWORD` and need a clean re-seed).
 
 ## Logging in
 
@@ -45,7 +48,17 @@ yourself:
 Get a token from `POST /api/auth/login`, then use the **Authorize** button in
 Swagger (paste just the token, no `Bearer` prefix) to call the booking endpoints.
 
+Example:
+
+```
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"userName":"agent","password":"Agent123!"}'
+```
+
 ## Tests
+
+Requires the .NET 10 SDK (tests run outside Docker):
 
 ```
 dotnet test
