@@ -1,16 +1,48 @@
 # Architecture
 
-Clean Architecture, four projects, dependencies only point inward.
+## High-level overview
 
+```mermaid
+flowchart TB
 
+    subgraph Client
+        Agent[Rental Agent]
+    end
 
-- Domain has no dependencies at all. entities, enums, and the pricing strategies.
-- Application defines the use cases (IBookingService) and the interfaces
-  Infrastructure has to implement (IBookingRepository, ...).
-- Infrastructure implements those interfaces: AppDbContext, repositories,
-  ASP.NET Core Identity, JWT token generation.
-- Api is the composition root, wires the concrete implementations into
-  the DI container in Program.cs.
+    subgraph API["CarRental.Api"]
+        Controllers[Controllers]
+        Auth[JWT Authentication]
+    end
+
+    subgraph Application["CarRental.Application"]
+        BookingService[Booking Service]
+        PricingFactory[Pricing Factory]
+    end
+
+    subgraph Domain["CarRental.Domain"]
+        Entities[Entities]
+        Rules[Business Rules]
+        Pricing[IPriceCalculator]
+    end
+
+    subgraph Infrastructure["CarRental.Infrastructure"]
+        Repositories[Repositories]
+        Identity[ASP.NET Identity]
+        Database[(SQL Server)]
+    end
+
+    Agent --> Controllers
+    Controllers --> Auth
+    Controllers --> BookingService
+
+    BookingService --> PricingFactory
+    BookingService --> Repositories
+
+    PricingFactory --> Pricing
+
+    Repositories --> Database
+    Identity --> Database
+```
 
 ## Request flow — register pickup
 
